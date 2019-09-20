@@ -1,26 +1,57 @@
+// ============
+//  COMPONENT
+// ============
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import Form from './components/Form.js';
+import Recipes from './components/Recipes.js';
+// =================
+//  COMPONENT CLASS
+// =================
+const api_key = "c6ca10d92bf781f3f631415ae0da3205"
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends React.Component{
+  // ============
+  //  STATE
+  // ============
+  state = {
+    recipes: []
+  }
+  getRecipes = async (event) => {
+    const recipeName = event.target.elements.recipeName.value;
+
+    event.preventDefault();
+    const call_api = await fetch(`https://www.food2fork.com/api/search?key=${api_key}&q=${recipeName}&count=12`);
+
+    const results = await call_api.json();
+    console.log("hahahah");
+    this.setState({ recipes: results.recipes})
+    console.log(this.state.recipes);
+  }
+  componentDidMount = () => {
+    const json = localStorage.getItem("recipes");
+    const recipes = JSON.parse(json);
+    if (recipes !== null) {
+     this.setState({recipes: recipes});
+    }
+  }
+  componentDidUpdate = () => {
+    const recipes = JSON.stringify(this.state.recipes);
+    localStorage.setItem("recipes", recipes)
+  }
+  render() {
+    return(
+      <div className="App">
+        <header className="Header">
+          <h1 className="Title">FindMeRecipes</h1>
+        </header>
+        <Form getRecipes={this.getRecipes}/>
+        <Recipes recipes={this.state.recipes}/>
+      </div>
+    )
+  }
 }
+// ===============
+// EXPORT
+// ===============
 
 export default App;
